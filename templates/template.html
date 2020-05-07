@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="hu" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Dixit</title>
+  </head>
+  <body>
+    Ez egy templateből jön.
+    A beírt adat : {{mydata}}
+
+    <div id="data">
+        semmi.
+    </div>
+
+    <script type="text/javascript">
+      // példa adatkapcsolat
+      async function dataxchg(){
+        let reply = await fetch('/jsontest');
+        let json = await reply.json();
+        console.log(json);
+
+        let hova = document.querySelector('#data');
+        hova.innerText = json.b
+      }
+
+      dataxchg();
+    </script>
+  </body>
+</html>
