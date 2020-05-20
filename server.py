@@ -17,12 +17,15 @@ state.update({"pakli":random.shuffle(state["eredeti pakli"])})
 
 @app.route("/login")
 def login():
-    global state
+    # global state <-- ez nem kell mert nem akarod felülírni! (többinél sem)
     name=request.args.get("name")
+    if name is None:
+        return "You must tell me your name.", 400
     try:
         kezben=[state["pakli"].pop(0) for i in range(6)]
-    except:
-        state["pakli"]=random.shuffle(state["eredeti pakli"])
+    except: # <-- nem bölcs mindent except-elni!
+        state["pakli"]=state["eredeti pakli"]
+        random.shuffle(state["pakli"]) # <-- sajna ez is ilyen destruktív
         kezben=[state["pakli"].pop(0) for i in range(6)]   # itt ujra kell ezt irni?
     state["jatekosok"].update({name: (0, kezben)})
     return jsonify(state["jatekosok"][name])
@@ -30,15 +33,20 @@ def login():
 @app.route("/start")
 def start():
     global state
-    state["meselosor"]=random.shuffle(list(state["jatekosok"].keys()))
+    state["meselosor"]=list(state["jatekosok"].keys())
+    if state["meselosor"] == []:
+        return "No players!", 400
+    random.shuffle(state["meselosor"])
     state["meselo"]=state["meselosor"][0]
-    return jsonify(name) #escape(name)   ??
+    return jsonify({
+        'name': state["meselo"]
+        }) #escape(name)   ??
 
 @app.route("/startpoll")
 def startpoll():
     global state
     if state["meselo"]!="":
-        return jsonify(name) #escape(name)   ??
+        return jsonify(name) #escape(name) ,meselot kene visszaadni  ??
     else:
         return False #nincs ???
 
@@ -127,4 +135,5 @@ def vege():
     name=request.args.get("name")
     return state["jatekosok"][name](0), #itt lehetne az egesz? + awardok is return
 
-app.run(host=config.host, port=config.port)
+
+#app.run(host=config.host, port=config.port)
